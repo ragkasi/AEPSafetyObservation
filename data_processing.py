@@ -20,9 +20,25 @@ def clean_text(text):
     tokens = [word for word in tokens if word not in stopwords.words('english')] # Remove stopwords
     return ' '.join(tokens)
 
+# Heuristic-based risk labeling
+def assign_risk_level(text):
+    high_risk_keywords = ['fatal','severe','injury','critical','explosion','fire','death']
+    medium_risk_keywords = ['moderate','slip','trip','fall','accident','shock']
+
+    text = text.lower()
+
+    # Check for high-risk keywords
+    if any(keyword in text for keyword in high_risk_keywords):
+        return 2 # High risk
+    elif any(keyword in text for keyword in medium_risk_keywords):
+        return 1 # Medium risk
+    else:
+        return 0 # Low risk
+
 # Preprocess the data
 def preprocess_data(data):
     data['clean_comments'] = data['PNT_ATRISKNOTES_TX'].apply(clean_text)
+    data['risk_level'] = data['clean_comments'].apply(assign_risk_level) # Assign risk-level based on text
     return data
 
 # Split the data
